@@ -1,17 +1,33 @@
 import sys
 # import re
 # from collections import defaultdict
+from rich.pretty import pprint
+
+nice = {
+    "|": "│",
+    "-": "─",
+    "F": "╭",
+    "7": "╮",
+    "J": "╯",
+    "L": "╰",
+    ".": ".",
+    "S": "S",
+}
+
+
+def clean_map(grid, path):
+    for y, line in enumerate(grid):
+        for x, char in enumerate(line):
+            grid[y][x] = "."
+    for px,py,char in path:
+        grid[py][px] = nice[char]
 
 def find_animal(lines):
-    animal = None
     for y, line in enumerate(lines):
-        try:
-            x = line.index("S") 
-        except:
-            continue
-        animal = (x, y)
-        break
-    return animal
+        for x, char in enumerate(line):
+            if char == "S":
+                # Replace "animal" character with correct pipe info
+                return (x, y)
 
 
 def check_next(lines, x, y, d):
@@ -85,24 +101,36 @@ def main(filename):
     """
     with open(filename, "r") as f:
         lines = f.readlines()
-    
-    ax, ay = find_animal(lines)
+
+    # Convert to grid
+    grid = [[char for char in line.strip()] for line in lines]
+
+    ax, ay = find_animal(grid)
     nx, ny = 0, 0
     direction = None
     total_step = 0
 
+    main_path = [(ax,ay, "S")]
     while True:
         if direction:
-            nx, ny, direction = check_next(lines, nx, ny, direction)
+            nx, ny, direction = check_next(grid, nx, ny, direction)
         else:
             print(f"Start: {ax=} {ay=}")
-            nx, ny, direction = check_next(lines, ax, ay, None)
+            nx, ny, direction = check_next(grid, ax, ay, None)
 
         # print(f"Next location: {nx=}, {ny=}, {direction=}")
         total_step += 1
         if nx == ax and ny == ay:
             break
+        main_path.append((nx, ny, grid[ny][nx]))
 
+    # Print simplified map
+    clean_map(grid, main_path)
+    for r in grid:
+        for c in r:
+            print(c, end="")
+        print()
+    
 
     print(f"Part1: {int(total_step/2)}")
     print(f"Part2: {None}")

@@ -8,6 +8,12 @@ def main(filename):
     with open(filename, "r") as f:
         lines = f.readlines()
 
+    records = [line.split() for line in lines]
+    for condition, info in records:
+        groups = info.split(",")
+        
+        print(condition, info)
+
     print(f"Part1: {None}")
     print(f"Part2: {None}")
             

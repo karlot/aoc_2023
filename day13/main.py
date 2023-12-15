@@ -10,9 +10,6 @@ def main(filename):
 
     cum = 0
     for id, part in enumerate(patterns):
-        # if id == 12:
-        #     for i, p in enumerate(part):
-        #         print(i, p)
             rows_len = len(part)
 
             # Check vertical
@@ -25,7 +22,6 @@ def main(filename):
                 sym_row = ir + 1
                 # print(sym_row, ir + 1, rows_len - ir -1)
                 for offset in range(min(ir + 1, rows_len - ir -1)):
-                    # print(part[ir - offset], part[ir + 1 + offset])
                     if part[ir - offset] != part[ir + 1 + offset]:
                         vsym = False
                         break
@@ -40,8 +36,6 @@ def main(filename):
             hsym = False
             sym_col = None
             tpart = list(zip(*[[c for c in r] for r in part]))
-            # for i, p in enumerate(tpart):
-            #     print(i, p)
 
             cols_len = len(tpart)
             for ic in range(cols_len):
@@ -51,7 +45,6 @@ def main(filename):
                 hsym = True
                 sym_col = ic + 1
                 for offset in range(min(ic + 1, cols_len - ic -1)):
-                    # print(tpart[ic - offset], tpart[ic + 1 + offset])
                     if tpart[ic - offset] != tpart[ic + 1 + offset]:
                         hsym = False
                         break

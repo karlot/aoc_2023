@@ -12,10 +12,9 @@ def main(filename):
     """
     # Results:
     Part1: 33735
-    Part2: 
+    Part2: 38063
     """
     with open(filename) as f:
-        # lines = [l.strip() for l in f.readlines()]
         patterns = [part.splitlines() for part in f.read().split("\n\n")]
     
     cumulated = [0, 0, 0]

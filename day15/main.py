@@ -45,9 +45,9 @@ def main(filename):
             focal_lengths[label] = int(f_length)
 
     total = 0
-    for box_number, box in enumerate(boxes, 1):
-        for lens_slot, label in enumerate(box, 1):
-            total += box_number * lens_slot * focal_lengths[label]
+    for bi, box in enumerate(boxes, 1):
+        for li, label in enumerate(box, 1):
+            total += bi * li * focal_lengths[label]
 
     print(f"Part2: {total}")
             

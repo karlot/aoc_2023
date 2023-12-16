@@ -2,9 +2,8 @@ import sys
 from collections import deque
 
 def calculate(r, c, dr, dc, grid):
-    a = [(r, c, dr, dc)]
     seen = set()
-    q = deque(a)
+    q = deque([(r, c, dr, dc)])
 
     while q:
         r, c, dr, dc = q.popleft()

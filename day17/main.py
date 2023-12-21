@@ -1,8 +1,8 @@
 import sys
 from queue import PriorityQueue
 
-def solve_hl(grid, min_forward, max_forward):
-    # Grid size
+
+def solve_heat_loss(grid, min_forward, max_forward):
     max_rows = len(grid)
     max_cols = len(grid[0])
 
@@ -35,7 +35,6 @@ def solve_hl(grid, min_forward, max_forward):
             continue
 
         # Save checkpoint location with known heat-loss
-        # checked[checkpoint] = heat_loss
         directions = []
 
         if steps < max_forward:
@@ -45,12 +44,13 @@ def solve_hl(grid, min_forward, max_forward):
             directions.append((-dc, dr))
             directions.append((dc, -dr))
 
+        # Check all directions and add them to prio-queue
         for ndr, ndc in directions:
             nr = r + ndr
             nc = c + ndc
             if 0 <= nr < max_rows and 0 <= nc < max_cols:
                 nhl = hl + grid[nr][nc]
-                checkpoint = (nr, nc, ndr, ndc, steps + 1 if (ndr, ndc) == (dr, dc) else 1)
+                checkpoint = (nr, nc, ndr, ndc, steps + 1 if ndr == dr and ndc == dc else 1)
 
                 if checkpoint not in checked or nhl < checked[checkpoint]:
                     checked[checkpoint] = nhl
@@ -61,8 +61,8 @@ def solve_hl(grid, min_forward, max_forward):
 def main(filename):
     """
     # Results:
-    Part1: 
-    Part2: 
+    Part1: 970
+    Part2: 1149
     """
     with open(filename) as f:
         # Commonly used for various inputs
@@ -70,8 +70,8 @@ def main(filename):
         lines = tuple(data.splitlines())
         grid = tuple([tuple([int(c) for c in line]) for line in lines])
 
-    print(f"Part1: {solve_hl(grid, 0, 3)}")
-    print(f"Part2: {solve_hl(grid, 4, 10)}")
+    print(f"Part1: {solve_heat_loss(grid, 0, 3)}")
+    print(f"Part2: {solve_heat_loss(grid, 4, 10)}")
             
 
 if __name__ == "__main__":

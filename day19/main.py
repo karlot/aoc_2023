@@ -1,23 +1,12 @@
 import sys
-
-# Hash function
-# -------------
-# Determine the ASCII code for the current character of the string.
-# Increase the current value by the ASCII code you just determined.
-# Set the current value to itself multiplied by 17.
-# Set the current value to the remainder of dividing itself by 256.
-def myhash(input_str):
-    val = 0
-    for c in input_str:
-        val = ((val + ord(c)) * 17) % 256
-    return val
-
+import re
+from rich.pretty import pprint
 
 def main(filename):
     """
     # Results:
-    Part1: 505427
-    Part2: 243747
+    Part1: 
+    Part2:
     """
     with open(filename) as f:
         # Commonly used for various inputs
@@ -25,31 +14,86 @@ def main(filename):
         lines = tuple(data.splitlines())
         grid = tuple([tuple([c for c in line]) for line in lines])
 
-    opcodes = lines[0]
+    wf_dict = {}
 
-    print(f"Part1: {sum(map(myhash, opcodes.split(',')))}")
+    workflows, parts_data = data.split("\n\n")
+    for wf_line in workflows.splitlines():
+        wf_name, wfs = re.match(r"(.*)\{(.*)\}", wf_line).groups()
+        rules = wfs.split(",")
+        wf_order = []
+        for rule in rules:
+            if ">" in rule or "<" in rule:
+                comp, dr = rule.split(":")
+                cat, comp, val = comp[0], comp[1], comp[2:]
+                wf_order.append((cat, comp, int(val), dr))
+            else:
+                wf_order.append((rule,))
+        wf_dict[wf_name] = wf_order
+    
+    parts = []
+    for part_data in parts_data.splitlines():
+        part = {p[0]: int(p[2:]) for p in part_data[1:-1].split(",")}
+        parts.append(part)
 
-    # Make 256 "boxes", and store focal-lengths for each lens
-    boxes = [[] for _ in range(256)]
-    focal_lengths = {}
+    accepted = []
+    rejected = []
+    for part in parts:
+        next_wf = "in"
+        finished = False
+        while not finished:
+            # print(next_wf, part, wf_dict[next_wf])
+            for r in wf_dict[next_wf]:
+                # print(r[1], part[r[0]], r[2], r[3])
+                if len(r) > 1:
+                    # Check props
+                    if r[1] == ">":
+                        if part[r[0]] > r[2]:
+                            if r[3] == "A":
+                                accepted.append(part)
+                                finished = True
+                                break
+                            elif r[3] == "R":
+                                rejected.append(part)
+                                finished = True
+                                break
+                            else:
+                                next_wf = r[3]
+                                break
+                        # continue
+                    else:
+                        if part[r[0]] < r[2]:
+                            if r[3] == "A":
+                                accepted.append(part)
+                                finished = True
+                                break
+                            elif r[3] == "R":
+                                rejected.append(part)
+                                finished = True
+                                break
+                            else:
+                                next_wf = r[3]
+                                break
+                        # continue
+                else:
+                    # print(f"End of WF with rule: {r[0]}")
+                    if r[0] == "A":
+                        accepted.append(part)
+                        finished = True
+                        break
+                    elif r[0] == "R":
+                        rejected.append(part)
+                        finished = True
+                        break
+                    else:
+                        next_wf = r[0]
+                        break
+    
+    ans = 0
+    for p in accepted:
+        ans += p["x"] + p["m"] + p["a"] + p["s"]
 
-    for opcode in opcodes.split(","):
-        if opcode[-1] == "-":
-            label = opcode[:-1]
-            index = myhash(label)
-            if label in boxes[index]: boxes[index].remove(label)
-        else:
-            label, f_length = opcode.split("=")
-            index = myhash(label)
-            if label not in boxes[index]: boxes[index].append(label)
-            focal_lengths[label] = int(f_length)
-
-    total = 0
-    for bi, box in enumerate(boxes, 1):
-        for li, label in enumerate(box, 1):
-            total += bi * li * focal_lengths[label]
-
-    print(f"Part2: {total}")
+    print(f"Part1: {ans}")
+    # print(f"Part2: {None}")
             
 
 if __name__ == "__main__":

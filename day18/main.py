@@ -45,11 +45,9 @@ class Lagoon:
     def dig_by_fill(self):
         grid = [["." for _ in range(self.gx)] for _ in range(self.gy)]
         x, y = abs(self.min_x), abs(self.min_y)
-        # print(f"Starting point: {x=}, {y=}")
 
         trench_volume = 0
         for d, m, c in self.path:
-            # print(f"Point: {x=}, {y=}, going: {d=} {m=} times")
             trench_volume += m
             match d:
                 case "U":
@@ -76,7 +74,6 @@ class Lagoon:
         def flood_fill(g, y, x):
             stack = [(y, x)]
             flooded = 0
-
             while stack:
                 y, x = stack.pop()
                 if 0 <= y < rows and 0 <= x < cols and g[y][x] == ".":
@@ -86,14 +83,12 @@ class Lagoon:
                     # Add neighbors to the stack
                     for py, px in [(y + 1, x), (y - 1, x), (y, x + 1), (y, x - 1)]:
                         stack.append((py, px))    
-                    # stack.append((y + 1, x))
-                    # stack.append((y - 1, x))
-                    # stack.append((y, x + 1))
-                    # stack.append((y, x - 1))
-            
             return flooded
 
         # Find starting point for fill (somewhere inside)
+        # Find first "#" from left side of the grid, and see it is surrounded by "."
+        # This means point on right side is first seem "inside" point we can use for
+        # fill algorithm
         start_x, start_y = 0, 0
         for y, r in enumerate(grid):
             found = False

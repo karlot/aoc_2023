@@ -1,6 +1,7 @@
 import sys
 import re
 
+
 def process_workflows(workflows):
     wf_dict = {}
     for wf_line in workflows.splitlines():
@@ -71,7 +72,55 @@ def main(filename):
             ans += sum(p.values())
 
     print(f"Part1: {ans}")
-    # print(f"Part2: {None}")
+
+
+    ## Trying part2 magic with range splittings
+    ## ----------------------------------------
+    def count(ranges, wf_name = "in"):
+        # print("...testing...", wf_name, ranges)
+
+        # We dont count rejects...
+        if wf_name == "R": return 0
+
+        # If we reach accept, we need to count product of this subset
+        if wf_name == "A":
+            product = 1
+            for lo, hi in ranges.values():
+                product *= hi - lo + 1
+            # print("Reached ACCEPT", ranges.values(), product)
+            return product
+        
+        rules = wf_dict[wf_name][:-1]
+        fallback = wf_dict[wf_name][-1][0]
+
+        ## Need to go trough this a bit....
+        total = 0
+        for cat, comp, val, dr in rules:
+            lo, hi = ranges[cat]
+            if comp == "<":
+                T = (lo, min(val - 1, hi))
+                F = (max(val, lo), hi)
+            else:
+                T = (max(val + 1, lo), hi)
+                F = (lo, min(val, hi))
+
+            if T[0] <= T[1]:
+                copy = dict(ranges)
+                copy[cat] = T
+                total += count(copy, dr)
+
+            if F[0] <= F[1]:
+                ranges = dict(ranges)
+                ranges[cat] = F
+            else:
+                break
+        else:
+            total += count(ranges, fallback)
+                
+        return total
+    
+    ranges = { key: (1, 4000) for key in "xmas" }   # {'x': (1, 4000), 'm': (1, 4000), 'a': (1, 4000), 's': (1, 4000)}
+    print(f"Part2: {count(ranges)}")
             
 
 if __name__ == "__main__":

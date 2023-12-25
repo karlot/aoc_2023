@@ -55,7 +55,7 @@ def main(filename):
     """
     # Results:
     Part1: 449531
-    Part2:
+    Part2: 122756210763577
     """
     with open(filename) as f:
         # Commonly used for various inputs
@@ -82,11 +82,11 @@ def main(filename):
         # We dont count rejects...
         if wf_name == "R": return 0
 
-        # If we reach accept, we need to count product of this subset
+        # If we reach accept, we need to count product of 
         if wf_name == "A":
             product = 1
-            for lo, hi in ranges.values():
-                product *= hi - lo + 1
+            for low, high in ranges.values():
+                product *= high - low + 1
             # print("Reached ACCEPT", ranges.values(), product)
             return product
         
@@ -96,27 +96,34 @@ def main(filename):
         ## Need to go trough this a bit....
         total = 0
         for cat, comp, val, dr in rules:
-            lo, hi = ranges[cat]
+            # Get smallest and largest values in this range for given category (x, m ,a ,s)
+            low, high = ranges[cat]    # ex: (1, 4000)
+            # Split into true and false parts, based on comparison of the rule
             if comp == "<":
-                T = (lo, min(val - 1, hi))
-                F = (max(val, lo), hi)
+                true_half = (low, min(val - 1, high))  # make new range definition for true with with same initial "low" up to rules's "high"
+                false_half = (max(val, low), high)     # make new range definition for true above rule's "low", and same initial "high"
             else:
-                T = (max(val + 1, lo), hi)
-                F = (lo, min(val, hi))
+                true_half = (max(val + 1, low), high)  # almost reverse from above
+                false_half = (low, min(val, high))     # almost reverse from above
 
-            if T[0] <= T[1]:
+            # Check lower bound of "true" half is less or equal then higher bound
+            # While we still have diff between low and high, make a copy of range, and update
+            # values of specific category (x, m, a ,s) to new boundaries to check
+            if true_half[0] <= true_half[1]:
                 copy = dict(ranges)
-                copy[cat] = T
+                copy[cat] = true_half
                 total += count(copy, dr)
-
-            if F[0] <= F[1]:
+            if false_half[0] <= false_half[1]:
                 ranges = dict(ranges)
-                ranges[cat] = F
+                ranges[cat] = false_half
             else:
+                # we covered all remaining cases, so we dont need to check anything
                 break
+        # Once we break, we need to acount for last iteration
         else:
             total += count(ranges, fallback)
-                
+        
+        # Return accumulated
         return total
     
     ranges = { key: (1, 4000) for key in "xmas" }   # {'x': (1, 4000), 'm': (1, 4000), 'a': (1, 4000), 's': (1, 4000)}

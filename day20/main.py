@@ -1,6 +1,6 @@
 import sys
 from collections import deque
-from math import gcd
+from math import lcm
 
 
 class Button():
@@ -172,13 +172,6 @@ def main(filename):
         rx_inverter_feeds = rev[rx_inverter]    # into conjunction node pre-rx, multiple conjunction nodes are the inputs
                                                 # try detecting cycles on those nodes to output "lo"
 
-        # Lowest Common Multiplier
-        def lcm(values):
-            ans = 1
-            for x in values:
-                ans = (x * ans) // gcd(x, ans)
-            return ans
-
         Q = deque()
         presses = 0
         stop = False
@@ -204,9 +197,9 @@ def main(filename):
                         out = modules[n].process(src, sig)
                         if out: Q.append(out)
         
-        # Finally once loop is exited, we should have all cycle info for feed into pre-RX Conjuction
+        # Finally once loop is exited, we should have all cycle info for feed into pre-RX Conjunction
         # To get total count of presses, we need to calculate LCM of all values
-        print(f"Part2: {lcm(cycles.values())}")
+        print(f"Part2: {lcm(*cycles.values())}")
             
 
 if __name__ == "__main__":

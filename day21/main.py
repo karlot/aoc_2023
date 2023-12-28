@@ -8,42 +8,46 @@ def find_start(grid):
             if c == "S":
                 return (x, y)
 
+# def draw(grid, fill_points):
+#     print()
+#     for gy, r in enumerate(grid):
+#         for gx, c in enumerate(r):
+#             if c == "#": continue
+#             grid[gy][gx] = "."
+
+#     for fx, fy in fill_points:
+#         grid[fy][fx] = "O"
+#     for r in grid:
+#         print("".join(r))
+
 
 def main(filename):
     """
     # Results:
-    Part1: 
+    Part1: 3532
     Part2:
     """
     with open(filename) as f:
         # Commonly used for various inputs
         data = f.read()
         lines = tuple(data.splitlines())
-        grid = tuple([tuple([c for c in line]) for line in lines])
+        grid = [[c for c in line] for line in lines]
 
     # Some switches when running only single part
     run_part1 = True
-    run_part2 = False
+    run_part2 = True
 
-    # ---------------------------------
-    # Part 1
-    # ---------------------------------
-    if run_part1:
-        rows = len(grid)
-        cols = len(grid[0])
-        start = find_start(grid)
-        # print(f"Starting position: {start}")
+    # General
+    rows = len(grid)
+    cols = len(grid[0])
+    start = find_start(grid)
+    # print(f"Starting position: {start}")
 
-        start_set = set()
-        start_set.add(start)
+    def steps(max_steps):
         q = deque()
-        q.append(start_set)
+        q.append({start})
 
-        max_steps = 64
-        steps = 0
-        next_set = set()
-        while q:
-            steps += 1
+        for _ in range(max_steps):
             positions = q.popleft()
             next_set = set()
             for px, py in positions:
@@ -58,18 +62,23 @@ def main(filename):
                         continue
                     # print(f"Next position OK: {(nx, ny)}")
                     next_set.add((nx, ny))
-            # print("-" * 40)
-            # print(f"Next set of positions: {next_set}")
-            if steps < max_steps:
-                q.append(next_set)
+            q.append(next_set)
+        return len(next_set)
 
-        print(f"Part1: {len(next_set)}")
+    # ---------------------------------
+    # Part 1
+    # ---------------------------------
+    if run_part1:
+        print(f"Part1: {steps(64)}")
 
     # ---------------------------------
     # Part 2
     # ---------------------------------
-    if run_part2:
-        print(f"Part2: {None}")
+    # if run_part2:
+    #     target_steps = 26501365
+    #     x = target_steps % (2 * rows)
+    #     print(x)
+    #     print(f"Part2: {None}")
             
 
 if __name__ == "__main__":

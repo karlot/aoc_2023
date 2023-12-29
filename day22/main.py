@@ -103,6 +103,7 @@ def main(filename):
     # Part 2
     # ---------------------------------
     if run_part2:
+        # For each brick, determine how many other bricks would fall if that brick were disintegrated
         total = 0
         for i in range(bricks_len):
             q = deque(j for j in asb[i] if len(bsa[j]) == 1)

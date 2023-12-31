@@ -1,28 +1,38 @@
 import sys
 
+# Directions
+UP    = [(-1,  0)]
+DOWN  = [( 1,  0)]
+LEFT  = [( 0, -1)]
+RIGHT = [( 0,  1)]
+UDLR =  [*UP, *DOWN, *LEFT, *RIGHT]
+
 def get_points(start, end, lines):
     points = [start, end]
-    for r, row in enumerate(lines):
-        for c, ch in enumerate(row):
+    rows = len(lines)
+    cols = len(lines[0])
+    for y, row in enumerate(lines):
+        for x, ch in enumerate(row):
             if ch == "#": continue
             neighbors = 0
-            for nr, nc in [(r - 1, c), (r + 1, c), (r, c - 1), (r, c + 1)]:
-                if 0 <= nr < len(lines) and 0 <= nc < len(lines[0]) and lines[nr][nc] != "#":
+            for dy, dx in UDLR:
+                ny, nx = y + dy, x + dx
+                if 0 <= ny < rows and 0 <= nx < cols and lines[ny][nx] != "#":
                     neighbors += 1
             if neighbors >= 3:
-                points.append((r, c))
+                points.append((y, x))
     return points
 
 
 def run_dfs(start, end, points_graph):
     seen = set()
-    def dfs(pt):
-        if pt == end: return 0
+    def dfs(position):
+        if position == end: return 0
         m = -float("inf")
-        seen.add(pt)
-        for nx in points_graph[pt]:
-            if nx not in seen: m = max(m, dfs(nx) + points_graph[pt][nx])
-        seen.remove(pt)
+        seen.add(position)
+        for nx in points_graph[position]:
+            if nx not in seen: m = max(m, dfs(nx) + points_graph[position][nx])
+        seen.remove(position)
         return m
     return dfs(start)
 
@@ -30,8 +40,8 @@ def run_dfs(start, end, points_graph):
 def main(filename):
     """
     # Results:
-    Part1: 
-    Part2:
+    Part1: 2134
+    Part2: 6298
     """
     with open(filename) as f:
         # Commonly used for various inputs
@@ -50,16 +60,8 @@ def main(filename):
     start = (0, lines[0].index("."))
     end = (rows - 1, lines[rows - 1].index("."))
 
+    # Get all points for the graph (where we can branch)
     points = get_points(start, end, lines)
-
-    # Direction map (possibilities based on current field)
-    directions = {
-        "^": [(-1, 0)],
-        "v": [(1, 0)],
-        "<": [(0, -1)],
-        ">": [(0, 1)],
-        ".": [(-1, 0), (1, 0), (0, -1), (0, 1)],
-    }
 
     # Some switches when running only single part
     run_part1 = True
@@ -74,23 +76,25 @@ def main(filename):
     # To make sure you have the most scenic hike possible, never step onto the same
     # tile twice. What is the longest hike you can take?
     if run_part1:
+        # Direction map (possibilities based on current field)
+        directions = {"^": UP, "v": DOWN, "<": LEFT, ">": RIGHT, ".": UDLR}
         points_graph = {p: {} for p in points}
-        for sr, sc in points:
-            stack = [(0, sr, sc)]
-            seen = {(sr, sc)}
+        for sy, sx in points:
+            stack = [(0, sy, sx)]
+            seen = {(sy, sx)}
             while stack:
-                n, r, c = stack.pop()
-                if n != 0 and (r, c) in points:
-                    points_graph[(sr, sc)][(r, c)] = n
+                n, y, x = stack.pop()
+                if n != 0 and (y, x) in points:
+                    points_graph[(sy, sx)][(y, x)] = n
                     continue
-                for dr, dc in directions[grid[r][c]]:
-                    nr, nc = r + dr, c + dc
+                for dy, dx in directions[grid[y][x]]:  # We check limited set based on current field type
+                    ny, nx = y + dy, x + dx
                     # Boundaries
-                    if 0 <= nr < rows and 0 <= nc < cols:
-                        if grid[nr][nc] == "#": continue
-                        if (nr, nc) not in seen:
-                            stack.append((n + 1, nr, nc))
-                            seen.add((nr, nc))
+                    if 0 <= ny < rows and 0 <= nx < cols:
+                        if grid[ny][nx] == "#": continue
+                        if (ny, nx) not in seen:
+                            stack.append((n + 1, ny, nx))
+                            seen.add((ny, nx))
 
         print(f"Part1: {run_dfs(start, end, points_graph)}")
 
@@ -104,22 +108,22 @@ def main(filename):
     # What is the longest hike you can take?
     if run_part2:
         points_graph = {p: {} for p in points}
-        for sr, sc in points:
-            stack = [(0, sr, sc)]
-            seen = {(sr, sc)}
+        for sy, sx in points:
+            stack = [(0, sy, sx)]
+            seen = {(sy, sx)}
             while stack:
-                n, r, c = stack.pop()
-                if n != 0 and (r, c) in points:
-                    points_graph[(sr, sc)][(r, c)] = n
+                n, y, x = stack.pop()
+                if n != 0 and (y, x) in points:
+                    points_graph[(sy, sx)][(y, x)] = n
                     continue
-                for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-                    nr, nc = r + dr, c + dc
+                for dy, dx in UDLR:     # We check all directions ignoring the slopes
+                    ny, nx = y + dy, x + dx
                     # Boundaries
-                    if 0 <= nr < rows and 0 <= nc < cols:
-                        if grid[nr][nc] == "#": continue
-                        if (nr, nc) not in seen:
-                            stack.append((n + 1, nr, nc))
-                            seen.add((nr, nc))
+                    if 0 <= ny < rows and 0 <= nx < cols:
+                        if grid[ny][nx] == "#": continue
+                        if (ny, nx) not in seen:
+                            stack.append((n + 1, ny, nx))
+                            seen.add((ny, nx))
 
         print(f"Part2: {run_dfs(start, end, points_graph)}")
             
